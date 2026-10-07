@@ -1,0 +1,58 @@
+{
+  "archived_date": "2026-10-07",
+  "files": [
+    {
+      "source_basename": "app.py",
+      "destination": "app.py",
+      "source_sha256": "75edbf940b7a79fadd7e2176fb54dc0722c6146e94773ed25d20fc7e455a556f",
+      "public_sha256": "75edbf940b7a79fadd7e2176fb54dc0722c6146e94773ed25d20fc7e455a556f",
+      "changes": []
+    },
+    {
+      "source_basename": "templates/index.html",
+      "destination": "templates/index.html",
+      "source_sha256": "acf3efe3bce8ad6568a5d0fa21d598201c445953d7f0b966af1b89084ef181f3",
+      "public_sha256": "acf3efe3bce8ad6568a5d0fa21d598201c445953d7f0b966af1b89084ef181f3",
+      "changes": []
+    },
+    {
+      "source_basename": "final_all(6).py",
+      "destination": "final_all(6).py",
+      "source_sha256": "415666de00bd76b713995d29f4f1eb9debccc97018b84f8540edceb3eaa55ef9",
+      "public_sha256": "69131855ecbe1491096fa14d73edde45b530c364b373634005905127df683105",
+      "changes": [
+        {
+          "line": 80,
+          "change": "Replaced hardcoded API credential with os.environ[\"DASHSCOPE_API_KEY\"] and updated adjacent comment."
+        },
+        {
+          "line": 111,
+          "change": "Replaced hardcoded API credential with os.environ[\"DASHSCOPE_API_KEY\"] and updated adjacent comment."
+        }
+      ]
+    }
+  ],
+  "added_files": [
+    "README.md",
+    "requirements.txt",
+    "PUBLICATION_CHANGES.json"
+  ],
+  "checks": {
+    "python_ast": [
+      "app.py",
+      "final_all(6).py"
+    ],
+    "html_parser": "templates/index.html",
+    "jinja_delimiter_and_if_pair_check": "passed; Jinja2 package unavailable, no full render performed",
+    "sensitive_pattern_findings": [],
+    "runtime_executed": false
+  },
+  "excluded": [
+    "API keys and credential-bearing unselected versions",
+    "Chroma database",
+    "case files and legal documents",
+    "background audio and images",
+    "virtual environments",
+    "runtime logs"
+  ]
+}

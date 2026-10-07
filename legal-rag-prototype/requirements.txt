@@ -1,0 +1,7 @@
+# Inferred from source imports during archival; versions are not pinned.
+Flask
+python-docx
+requests
+chromadb
+openai
+pywin32; sys_platform == "win32"

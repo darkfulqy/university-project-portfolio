@@ -1,0 +1,233 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成判决书小助手(>_<)</title>
+    <!-- 引入 Google Fonts - Inter 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); /* 深色渐变背景 */
+            color: #ecf0f1; /* 浅色文字 */
+            line-height: 1.8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 改为 flex-start 以避免内容过长时被挤压 */
+            min-height: 100vh;
+            padding: 50px 20px; /* 增加页面整体内边距 */
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #1a2b40; /* 高贵典雅的蓝色背景 */
+            padding: 50px; /* 增加内边距 */
+            border-radius: 15px; /* 更圆润的边角 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* 更明显的阴影，调整为更深 */
+            max-width: 700px; /* 增加最大宽度 */
+            width: 100%;
+            text-align: center;
+            color: #e0e6eb; /* 容器内文字颜色，与新背景色更搭 */
+            position: relative;
+            z-index: 1; /* 确保在音频播放器之上 */
+        }
+        h1 {
+            color: #f7f9fc; /* 标题颜色，更亮以突出 */
+            font-size: 2.5em; /* 更大标题 */
+            margin-bottom: 40px;
+            font-weight: 700; /* 更粗字体 */
+            letter-spacing: 1px; /* 增加字母间距 */
+        }
+        h2 {
+            color: #f7f9fc; /* 小标题颜色，更亮以突出 */
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 30px; /* 增加表单组间距 */
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #cee0ed; /* 标签颜色 */
+            font-size: 1.15em;
+        }
+        input[type="text"] {
+            width: calc(100% - 24px); /* 调整宽度以适应新内边距 */
+            padding: 14px; /* 增加内边距 */
+            border: 1px solid #5a7d9b; /* 浅灰色边框 */
+            border-radius: 8px; /* 更圆润的边角 */
+            font-size: 1.05em;
+            box-sizing: border-box;
+            background-color: #2e445b; /* 输入框背景色 */
+            color: #e0e6eb; /* 输入框文字颜色 */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #87ceeb; /* 聚焦时亮蓝色边框 */
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.5); /* 聚焦时亮蓝色阴影 */
+            outline: none;
+        }
+        button {
+            background: linear-gradient(45deg, #2ecc71 0%, #27ae60 100%); /* 绿色渐变按钮 */
+            color: white;
+            padding: 16px 35px; /* 增加按钮大小 */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); /* 按钮阴影 */
+        }
+        button:hover {
+            transform: translateY(-3px); /* 悬停时上浮效果 */
+            box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+        }
+        .message {
+            margin-top: 40px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #3e5a73; /* 淡蓝色背景，与主题更搭 */
+            color: #e0e6eb; /* 文字颜色 */
+            font-size: 1.1em;
+            border: 1px solid #5a7d9b;
+            text-align: left;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); /* 内部阴影 */
+            white-space: pre-wrap; /* 保持文本中的换行符和空格 */
+        }
+
+        /* 音频播放器区域 */
+        .audio-player {
+            margin-top: 60px; /* 增加与上方内容的间距 */
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2); /* 浅色分割线 */
+            text-align: center;
+            color: #ecf0f1; /* 播放器文字颜色 */
+        }
+        .audio-player h2 {
+            color: #ecf0f1; /* 播放器标题颜色 */
+        }
+        .audio-player audio {
+            width: 300px; /* 播放器宽度 */
+            margin-top: 15px;
+            filter: invert(1); /* 使播放器图标在深色背景下可见 */
+            opacity: 0.8;
+        }
+        .audio-player audio:hover {
+            opacity: 1;
+        }
+
+        /* 参考案件展示区域 */
+        .reference-display {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #5a7d9b;
+            text-align: center;
+        }
+        .reference-display h2 {
+            color: #f7f9fc;
+        }
+        .reference-text-group {
+            display: flex;
+            flex-direction: column; /* 垂直排列文本框 */
+            gap: 20px; /* 文本框之间的间距 */
+            margin-top: 30px;
+        }
+        .reference-text-group textarea {
+            width: calc(100% - 28px); /* 宽度调整，留出边框和内边距 */
+            min-height: 150px; /* 最小高度 */
+            padding: 14px;
+            border: 1px solid #5a7d9b;
+            border-radius: 8px;
+            background-color: #2e445b; /* 背景色与输入框一致 */
+            color: #e0e6eb; /* 文字颜色 */
+            font-size: 1em;
+            resize: vertical; /* 允许用户垂直调整大小 */
+            box-sizing: border-box;
+            line-height: 1.6;
+        }
+
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+            .container {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            button {
+                padding: 14px 25px;
+                font-size: 1.1em;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            input[type="text"], button {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>生成判决书小助手(>_<)</h1>
+        <form method="POST" action="/process">
+            <div class="form-group">
+                <label for="file1">文件路径 1:</label>
+                <input type="text" id="file1" name="file1" placeholder="心情忐忑,不知庭审结果会如何" required>
+            </div>
+
+            <div class="form-group">
+                <label for="file2">文件路径 2:</label>
+                <input type="text" id="file2" name="file2" placeholder="AI助手来解惑，分析案情有把握" required>
+            </div>
+
+            <div class="form-group">
+                <label for="file3">文件路径 3:</label>
+                <input type="text" id="file3" name="file3" placeholder="输入文件地址,了解你的捍卫者" required>
+            </div>
+
+            <button type="submit">开始分析!</button>
+        </form>
+
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+
+        <!-- 参考案件展示区域 -->
+        <div class="reference-display">
+            <h2>参考案件展示</h2>
+            <div class="reference-text-group">
+                <textarea id="ref_case1" readonly>{{ ref_text1 if ref_text1 else '此处将显示第一个参考案件的内容...' }}</textarea>
+                <textarea id="ref_case2" readonly>{{ ref_text2 if ref_text2 else '此处将显示第二个参考案件的内容...' }}</textarea>
+                <textarea id="ref_case3" readonly>{{ ref_text3 if ref_text3 else '此处将显示第三个参考案件的内容...' }}</textarea>
+            </div>
+        </div>
+
+        <!-- 音频播放器区域 -->
+        <div class="audio-player">
+            <h2>等待时间可能较长，来听听音乐吧!</h2>
+            <audio autoplay controls loop preload="auto">
+                <source src="{{ url_for('static', filename='background_music.mp3') }}" type="audio/mpeg">
+                您的浏览器不支持音频元素。
+            </audio>
+        </div>
+
+    </div>
+</body>
+</html>
