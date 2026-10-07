@@ -18,3 +18,17 @@ venv/
 data/
 reports/
 checkpoints/
+
+# Reviewed reference tables only; generated data stays local.
+!math-modeling-2026/data/
+math-modeling-2026/data/*
+!math-modeling-2026/data/README.md
+!math-modeling-2026/data/figure_tables.json
+!math-modeling-2026/data/paper_tables.json
+
+# This data/ directory contains source code, not datasets.
+!rd-agent-crypto-extension/rdagent/scenarios/crypto/data/
+rd-agent-crypto-extension/rdagent/scenarios/crypto/data/*
+!rd-agent-crypto-extension/rdagent/scenarios/crypto/data/README_template.md
+!rd-agent-crypto-extension/rdagent/scenarios/crypto/data/__init__.py
+!rd-agent-crypto-extension/rdagent/scenarios/crypto/data/build_panel.py

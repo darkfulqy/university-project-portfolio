@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "dataset": "male-cns:v1.0",
+  "graph": "data/processed/male_cns_v1_0_visual_full",
+  "output": "results/visual_full_cns/v0",
+  "model": "whole_cns_rectified_tanh_tonic_rate_v0",
+  "activity_units": "arbitrary_units",
+  "input_boundary": "retinal_R1_R6_terminals",
+  "stimulus": {
+    "kind": "achromatic_full_field_square_wave",
+    "frequency_hz": 10.0,
+    "duty_cycle": 0.5,
+    "onset_s": 1.0,
+    "offset_s": 21.0,
+    "duration_s": 22.0,
+    "amplitude_au": 0.8,
+    "phototransduction_model": false,
+    "blue_green_spectral_calibration": false
+  },
+  "dynamics": {
+    "coupling": 0.8,
+    "tau_uniform_s": [
+      0.018,
+      0.022
+    ],
+    "tonic_input_uniform_au": [
+      0.225,
+      0.275
+    ],
+    "dt_s": 0.001,
+    "output_every": 1,
+    "solver": "exponential_leak_euler",
+    "parameters_fitted_to_empirical_lfp": false
+  },
+  "parameter_seed": 211,
+  "planned_checks": [
+    "blank",
+    "visual_output_block",
+    "half_dt_short_trial"
+  ],
+  "observation": {
+    "kind": "anatomical_population_mean_activity",
+    "units": "arbitrary_units",
+    "electrode_geometry": null,
+    "physical_forward_model": false
+  },
+  "reference_paper": "https://doi.org/10.1242/jeb.250165",
+  "reference_target": "10_Hz_stimulus_locked_LFP_response_direction_not_numerical_replication",
+  "split_group": "male_cns_v1_0_visual_source_211",
+  "behavior": {
+    "trajectory": null,
+    "movement_label": null,
+    "reason": "no_body_simulation_in_this_branch"
+  },
+  "status": "completed_continuous_activity_pilot_physical_lfp_pending",
+  "result_report": "docs/visual_full_cns_pilot.md"
+}

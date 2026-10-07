@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "dataset": "male-cns:v1.0",
+  "body_id": 17871,
+  "cell_type": "Mi1_R",
+  "scope": "one_way_single_fly_cell_membrane_replay_from_frozen_whole_CNS",
+  "source_trial": "results/fly_observer/v0/source/trial.npz",
+  "source_metadata": "results/fly_observer/v0/source/metadata.json",
+  "contacts": "data/processed/fly_observer_mi1/contacts.feather",
+  "swc": "data/raw/male_cns/v1.0/morphology_examples/17871.swc",
+  "output": "results/fly_observer/v1",
+  "cable_parameters": {
+    "cm_uF_cm2": 1.0,
+    "ra_ohm_cm": 100.07105,
+    "leak_S_cm2": 0.00001,
+    "leak_reversal_mV": -65.0,
+    "exc_reversal_mV": 0.0,
+    "inh_reversal_mV": -70.0,
+    "conductance_uS_per_contact_per_au": 0.00001,
+    "radius_scale": 1.0,
+    "max_segment_um": 2.0,
+    "sigma_S_m": 0.3
+  },
+  "passive_parameter_source": {
+    "paper": "https://doi.org/10.1038/s41593-017-0046-4",
+    "modeldb_commit": "bf8ba7867feeeddd944747021578c90f47e32796",
+    "transfer": "T4 passive parameters transferred to Mi1 as an unvalidated modeling assumption",
+    "cm_status": "fixed assumption in original T4 paper, not measured Mi1 capacitance",
+    "archive_license": "CC-BY-NC-4.0; original code not executed or copied"
+  },
+  "mapping": {
+    "type": "continuous_nonnegative_activity_to_ohmic_membrane_conductance",
+    "formula": "g_contact_uS(t) = 1e-5 * x_pre_au(t)",
+    "mapping_gain_status": "assumed_not_fitted_to_LFP_or_Mi1_ephys",
+    "contacts": "all contacts retained by frozen graph; unknown output sign disabled",
+    "location": "nearest_centerline_segment_to_original_postsynaptic_coordinate",
+    "interpolation": "left_hold_1_ms",
+    "reversal_mechanisms": "generic ohmic excitatory 0 mV and inhibitory -70 mV; no receptor kinetic calibration",
+    "spike_conversion": false,
+    "feedback_to_CNS": false
+  },
+  "observer": {
+    "forward_model": "lfpykit_line_sources_homogeneous_infinite_isotropic_volume_conductor",
+    "sigma_status": "generic_0.3_S_per_m_assumption_not_measured_fly_tissue",
+    "coordinates": "native_unmirrored_Male_CNS_EM_micrometers",
+    "source_geometry": "coarse_SWC_8_nm_scaled_to_um; radii_in_same_units_assumed",
+    "probe": "16_point_contacts_50_um_pitch_offset_from_morphology_PCA_axis",
+    "probe_offset_um": 50.0,
+    "minimum_centerline_clearance_um": 5.0,
+    "reference_channel_zero_based": 15,
+    "probe_geometry_status": "synthetic_not_registered_to_reference_paper_or_fly_boundary",
+    "reference": "channel_15_zero_based; chosen_geometry_not_fitted_polarity_reversal",
+    "output_units": "model_derived_microvolts",
+    "noise": null,
+    "finite_electrode_surface": false
+  },
+  "integration": {
+    "dt_ms": 0.025,
+    "warmup_ms": 2000.0,
+    "output_sampling_rate_hz": 1000,
+    "output_note": "point samples; no claim of antialias-filtered empirical acquisition"
+  },
+  "validation": {
+    "current_balance_abs_tolerance_nA": 1e-9,
+    "blank_max_delta_uV_tolerance": 1e-8,
+    "time_step_relative_max_tolerance": 0.01,
+    "space_step_relative_max_tolerance": 0.02,
+    "radius_scale_sensitivity": [0.5, 2.0],
+    "conductivity_sensitivity_S_m": [0.15, 0.6]
+  },
+  "source_model_seed": 211,
+  "split_group": "male_cns_v1_0_visual_source_211",
+  "trajectory": null,
+  "movement_label": null,
+  "analysis_role": "engineering_model_reuse_check_no_empirical_fit",
+  "whole_CNS_lfp": false,
+  "empirical_validation": false
+}

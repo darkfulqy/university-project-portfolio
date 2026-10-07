@@ -1,0 +1,37 @@
+{
+  "engine": "NumPy + LAPACK equivalent recurrence",
+  "model": 2,
+  "N": 100,
+  "dt_s": 0.5,
+  "theta_heat": 1.0,
+  "face_mode": 0,
+  "boundary_mode": 0,
+  "airmode": 0,
+  "scales": {
+    "D": 1.0,
+    "h": 1.0,
+    "hm": 1.0,
+    "T_C_shift": -2.0
+  },
+  "event_h": 61.525817079376594,
+  "last_time_h": 61.52583333333333,
+  "runtime_s": 18.77837658300996,
+  "final_radius_cm": 2.0,
+  "final_center_C": 0.14999998427787323,
+  "final_surface_C": 0.05033433756552951,
+  "final_center_T_C": 47.99893442622971,
+  "diagnostics": {
+    "event_interpolated_s": 221492.94148575573,
+    "failed_at_step": null,
+    "max_explicit_coefficient_sum": 0.5836190282126961,
+    "min_C": 0.05033433756552951,
+    "min_T_C": 27.71645908626266,
+    "max_T_C": 48.0404390339491,
+    "max_radial_C_increase": 0.0,
+    "max_center_C_time_increase": 0.0,
+    "final_relative_water_balance": -0.09187987611048569,
+    "max_relative_water_balance": 0.09187987611048569
+  },
+  "heat_face_mode": 0,
+  "record_interval_s": 60.0
+}

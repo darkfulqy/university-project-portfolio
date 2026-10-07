@@ -1,0 +1,376 @@
+# Prompt templates for the crypto 5-minute factor scenario (docs/crypto_5m/DESIGN.md section 8).
+# Loaded with T(".prompts:<key>") from rdagent/scenarios/crypto/*.py or T("scenarios.crypto.prompts:<key>").
+# Wording rules: crypto 5-minute bars only; no equity, daily-bar or model-training wording.
+
+crypto_factor_background: |-
+  A factor is a numeric signal computed for every (bar, instrument) pair of a cross-section of crypto instruments.
+  The universe is a fixed set of Binance USDT spot pairs (about 43 instruments such as BTCUSDT, ETHUSDT, SOLUSDT)
+  sampled as 5-minute OHLCV bars. Each factor value is attached to one instrument at one 5-minute bar and is used to
+  rank the instruments cross-sectionally: a good factor orders the instruments by their forward return over the next
+  5 and 15 minutes (higher factor value -> higher forward return, or consistently the opposite; the sign is learned).
+
+  Timing convention (critical): the index `datetime` of a bar is the bar OPEN time (tz-naive UTC). Bar `t` covers
+  [t, t + 5min) and every column of row `t` becomes known at `t + 5min`, when the bar closes. A factor value stored at
+  row `t` is treated as a signal emitted at `t + 5min` and is scored against returns that start at the close of bar `t`.
+  Therefore the value at (t, instrument) may only use panel rows with `datetime <= t` of any instrument. Using rows
+  with `datetime > t` (centered rolling windows, negative shifts, `shift(-k)`, `rolling(..., center=True)`, cumulative
+  operations run backwards, groupby transforms that peek at later rows) is look-ahead and will be rejected.
+
+  The factor is defined in the following parts:
+  1. Name: the name of the factor (a valid python identifier, used as the output column name).
+  2. Description: what the factor measures and why it should rank forward 5-15 minute returns.
+  3. Formulation: the formulation of the factor (LaTeX), with every hyperparameter written explicitly.
+  4. Variables: the variables or functions used in the formulation.
+  The factor might not provide all the parts of the information above since some might not be applicable.
+  Please specifically give all the hyperparameters in the factors like the window size (in bars), the look-back
+  period and so on. One factor should statically define one output with a static source data. For example, the last
+  12-bar (1 hour) momentum and the last 48-bar (4 hour) momentum should be two different factors.
+
+  {% if runtime_environment is not none %}
+  ====== Runtime Environment ======
+  You have the following environment to run the code:
+  {{ runtime_environment }}
+  {% endif %}
+
+crypto_factor_interface: |-
+  Your python code should follow the interface to better interact with the user's system.
+  Your python code should contain the following parts: the import part, the function part, and the main part. You should
+  write a main function named "calculate_{function_name}" and call this function in the "if __name__ == '__main__'"
+  part. Don't write any try-except block in your python code. The user will catch the exception message and provide the
+  feedback to you.
+  The user will write your python code into a python file and execute the file directly with "python {your_file_name}.py"
+  in a working directory that contains the source data file "{{ panel_filename }}" (a pandas HDF5 file, key "data").
+  Load it with `df = pd.read_hdf("{{ panel_filename }}", key="data")`. It is a DataFrame indexed by a MultiIndex
+  ("datetime", "instrument") sorted lexicographically, with the float64 columns
+  $open, $high, $low, $close, $volume, $amount, $trade_count, $taker_buy_volume, $taker_buy_amount
+  (5-minute bars, `datetime` = bar open time, all values of row t known at t + 5min).
+  You should calculate the factor values and save the result into an HDF5 (H5) file named "result.h5" in the same
+  directory as your python file, with `result_df.to_hdf("result.h5", key="data")`. The result file contains a pandas
+  DataFrame whose index is the MultiIndex ("datetime", "instrument") and whose single column is named exactly after the
+  factor; the value is the factor value (float). The `datetime` values must be a subset of the input grid (never
+  resample to 1-minute or to a coarser grid, never create new timestamps).
+
+  Implementation rules:
+  - Work per instrument with vectorised pandas: `df.groupby(level="instrument")[col].transform(...)` or
+    `df.groupby(level="instrument", group_keys=False).apply(...)` with rolling/shift/ewm; never loop over rows.
+  - Rolling windows are in bars (12 bars = 1 hour, 288 bars = 24 hours) and must only look backwards:
+    `rolling(window, min_periods=...)`, `shift(k)` with k >= 1, `ewm(...)`. Never use `center=True`, never `shift(-k)`,
+    never expanding/cumulative statistics computed on reversed data.
+  - Cross-sectional operations (ranks, z-scores, BTC-relative returns) group by `datetime` level and only use rows of
+    that same `datetime` or earlier.
+  - Do not forward-fill across missing bars in a way that fabricates prices; a missing bar simply has no row.
+  - Avoid division by zero (add a small epsilon or use `replace(0, np.nan)`), keep the output float64, and let NaN
+    remain NaN for warm-up bars instead of filling them with 0.
+  - Do not read any file other than "{{ panel_filename }}", do not download data, do not use the network.
+
+crypto_factor_output_format: |-
+  Your output should be a pandas DataFrame similar to the following example information:
+  <class 'pandas.core.frame.DataFrame'>
+  MultiIndex: 2000000 entries, (Timestamp('2026-03-01 00:05:00'), 'BTCUSDT') to (Timestamp('2026-08-23 23:55:00'), 'ZECUSDT')
+  Data columns (total 1 columns):
+  #   Column            Non-Null Count    Dtype
+  ---  ------            --------------    -----
+  0   your factor name  1990000 non-null  float64
+  dtypes: float64(1)
+  memory usage: <ignore>
+  Notice: the non-null count is OK to be different from the total number of entries since some instruments may not have
+  the factor value on some bars (warm-up windows, late-listed instruments, missing bars).
+  One possible format of `result.h5` may be like the following:
+  datetime             instrument
+  2026-03-01 00:05:00  BTCUSDT      -0.001796
+                       ETHUSDT       0.005780
+                       SOLUSDT       0.004228
+                       XRPUSDT       0.001298
+                       DOGEUSDT      0.005330
+                                     ...
+  2026-08-23 23:55:00  BTCUSDT       0.000000
+                       ETHUSDT       0.002459
+
+crypto_factor_simulator: |-
+  The factor values are evaluated by a pure pandas/numpy RankIC evaluator; there is no model training.
+  For every 5-minute origin t the evaluator computes the cross-sectional Spearman rank correlation (RankIC) between the
+  factor values at t and the forward simple returns close[t + h] / close[t] - 1 for the horizons h = 5m and 15m
+  (15m is the primary horizon). Origins with fewer than min_assets instruments are skipped, and origins whose target
+  would cross a segment boundary are purged. The panel is split chronologically into train, valid and test segments;
+  only the train and valid numbers are ever shown to you, the test segment is held out.
+  Reported metrics per factor, segment and horizon: n_ts (number of origins), ic_mean, ic_std, ic_ir (= ic_mean / ic_std),
+  ic_tstat (Newey-West t-statistic of ic_mean, robust to the autocorrelation of overlapping 15m targets; the naive
+  ic_ir * sqrt(n_ts) is reported as ic_tstat_naive), ic_tstat_dynamic (t-statistic of the IC of the factor after
+  subtracting each instrument's train-period mean, i.e. of its time-varying part only; a static per-instrument ranking
+  has no dynamic part), ic_pos_rate, coverage (fraction of instruments with a value), rank_autocorr_1
+  (cross-sectional rank correlation between t and t - 1 bar; 1.0 means a static ranking, low values mean high
+  turnover), q_spread_bp_gross (top-quantile minus bottom-quantile mean forward return in basis points) and
+  q_spread_bp_net = gross - turnover_estimate * 2 * (fee + slippage) with fee 10 bp and slippage 5 bp per side and
+  turnover_estimate = 1 - rank_autocorr_1.
+  The sign of a factor is taken from its train ic_mean at the primary horizon, so negatively correlated factors are fine.
+  A factor is accepted into the library only if it passes ALL deterministic gate rules on the valid segment at the
+  primary horizon (the gate cannot be overridden):
+  R0 no look-ahead: the factor code is re-executed on a panel truncated two days before its end and every value up to
+  the cut must be unchanged (a value at bar t may only use rows with datetime <= t; negative shifts, centered windows
+  and full-sample normalisation all fail this); in addition a valid |ic_mean| above gate_max_abs_ic or a constant IC
+  series (ic_std = 0) is treated as look-ahead;
+  R1 |ic_mean| >= gate_min_abs_ic, sign(valid ic_mean) == sign(train ic_mean), |ic_tstat| >= gate_min_tstat and
+  |ic_tstat_dynamic| >= gate_min_tstat (the within-instrument, time-varying part must be significant on its own);
+  R2 coverage >= gate_min_coverage;
+  R3 max |Spearman correlation| with every factor already in the library < gate_max_corr (novelty);
+  R4 the equal-weight rank composite of the library including the new factor has a valid ic_ir at least
+  gate_min_ir_gain higher than the composite without it.
+  Accepted factors stay in the library and are used by the composite in every later round.
+
+crypto_factor_rich_style_description: |-
+  ### R&D Agent-Crypto: Automated 5-Minute Factor Evolution
+
+  #### [Overview](#_summary)
+
+  The loop showcases the iterative process of hypothesis generation, knowledge construction and decision-making on
+  5-minute Binance USDT spot bars. Factors evolve through continuous feedback from a deterministic RankIC gate.
+
+  #### [Automated R&D](#_rdloops)
+
+  - **[R (Research)](#_research)**
+    - Iterative development of ideas and hypotheses about short-horizon crypto microstructure.
+    - Continuous learning and knowledge construction.
+
+  - **[D (Development)](#_development)**
+    - Progressive implementation and code generation of factors.
+    - Automated RankIC evaluation at 5m/15m horizons and library admission by gate rules.
+
+  #### [Objective](#_summary)
+
+  To accumulate a library of low-correlation, low-turnover factors whose rank composite keeps improving on the
+  validation segment.
+
+crypto_factor_experiment_setting: |-
+  | Dataset | Frequency | Universe | Data Split |
+  |---------|-----------|----------|------------|
+  | Binance USDT spot bars (`{{ panel_filename }}`) | {{ bar_minutes }}-minute bars | {{ n_instruments_text }} | Train: {{ train_start }} to {{ train_end }} <br> Valid: {{ valid_start }} to {{ valid_end }} <br> Test: {{ test_start }} to {{ test_end }} (held out, metrics never shown) |
+
+  | Evaluation | Value |
+  |------------|-------|
+  | Horizons | {{ horizons_text }} (primary {{ primary_horizon_minutes }}m) |
+  | Purge between segments | {{ purge_minutes }} minutes |
+  | min_assets per origin | {{ min_assets }} |
+  | Quantiles for spread | {{ n_quantiles }} |
+  | Fee / slippage per side | {{ fee_bp_per_side }} bp / {{ slippage_bp_per_side }} bp |
+  | Gate R0: max abs ic_mean (valid, primary horizon; above = look-ahead suspected) | {{ gate_max_abs_ic }} |
+  | Gate R1: min abs ic_mean / min abs ic_tstat and ic_tstat_dynamic (valid, primary horizon) | {{ gate_min_abs_ic }} / {{ gate_min_tstat }} |
+  | Gate R2: min coverage | {{ gate_min_coverage }} |
+  | Gate R3: max abs correlation with library | {{ gate_max_corr }} |
+  | Gate R4: min composite ic_ir gain | {{ gate_min_ir_gain }} |
+
+# Reusable Jinja macros for rendering ExperimentEval dicts (section 4.3). Only train/valid segments are rendered.
+# Import with: {% import "scenarios.crypto.prompts:crypto_eval_macros" as em %}
+crypto_eval_macros: |-
+  {% macro num(v) -%}
+  {%- if v is number %}{{ "%.4f"|format(v) }}{% else %}n/a{% endif -%}
+  {%- endmacro %}
+  {% macro metrics_line(mm) -%}
+  {%- set mm = mm or {} -%}
+  ic_mean={{ num(mm.get("ic_mean")) }}, ic_ir={{ num(mm.get("ic_ir")) }}, ic_tstat={{ num(mm.get("ic_tstat")) }}, ic_pos_rate={{ num(mm.get("ic_pos_rate")) }}, coverage={{ num(mm.get("coverage")) }}, rank_autocorr_1={{ num(mm.get("rank_autocorr_1")) }}, q_spread_bp_net={{ num(mm.get("q_spread_bp_net")) }}, n_ts={{ mm.get("n_ts", "n/a") }}
+  {%- endmacro %}
+  {% macro segment_block(metrics) -%}
+  {%- set metrics = metrics or {} -%}
+  {%- for seg in ["train", "valid"] -%}
+  {%- set segm = metrics.get(seg) or {} -%}
+  {%- for h, mm in segm.items() %}
+    {{ seg }}.{{ h }}: {{ metrics_line(mm) }}
+  {%- endfor -%}
+  {%- endfor -%}
+  {%- endmacro %}
+  {% macro eval_block(ev) -%}
+  {% if ev %}
+  {%- set cfg = ev.get("cfg") or {} -%}
+  {%- set ph = (cfg.get("primary_horizon_minutes", 15) ~ "m") -%}
+  RankIC evaluation (train and valid segments only; the held-out test segment is never shown):
+  Library before this experiment: {{ (ev.get("library_before") or []) | join(", ") or "(empty)" }}
+  {% for name, info in (ev.get("factors") or {}).items() %}
+  {%- set info = info or {} -%}
+  - Factor `{{ name }}`: {% if info.get("accepted") %}ACCEPTED into the library{% else %}REJECTED by the gate{% endif %} (sign={{ info.get("sign", "n/a") }}, max |corr| with library={{ num(info.get("max_corr")) }}{% if info.get("max_corr_with") %} vs `{{ info.get("max_corr_with") }}`{% endif %})
+  {%- if info.get("gate_reasons") %}
+    failed gate rules: {{ info.get("gate_reasons") | join("; ") }}
+  {%- endif %}
+  {{- segment_block(info.get("metrics")) }}
+  {% endfor %}
+  {%- set cb = ((ev.get("composite_before") or {}).get("valid") or {}).get(ph) -%}
+  {%- set ca = ((ev.get("composite_after") or {}).get("valid") or {}).get(ph) -%}
+  Library composite (equal-weight rank blend), valid segment, horizon {{ ph }}:
+    before: {% if cb %}{{ metrics_line(cb) }}{% else %}(empty library){% endif %}
+    after : {% if ca %}{{ metrics_line(ca) }}{% else %}(empty library){% endif %}
+  Accepted this round: {{ (ev.get("accepted") or []) | join(", ") or "(none)" }}
+  Library after this experiment: {{ (ev.get("library_after") or []) | join(", ") or "(empty)" }}
+  {% else %}
+  No evaluation result is available for this experiment (the factor code failed, timed out or produced no usable column).
+  {% endif %}
+  {%- endmacro %}
+
+hypothesis_and_feedback: |-
+  {% import "scenarios.crypto.prompts:crypto_eval_macros" as em %}
+  =========================================================
+  {% for experiment, feedback in trace.hist %}
+  # Trial {{ loop.index }}:
+  ## Hypothesis
+  {{ experiment.hypothesis }}
+  ## Specific task:
+  {% for task in experiment.sub_tasks %}
+  {% if task is not none and task.get_task_brief_information is defined %}
+  {{ task.get_task_brief_information() }}
+  {% endif %}
+  {% endfor %}
+  ## Evaluation and Feedback:
+  {{ em.eval_block(experiment.crypto_eval if experiment.crypto_eval is defined else none) }}
+  Observation: {{ feedback.observations }}
+  Hypothesis Evaluation: {{ feedback.hypothesis_evaluation }}
+  Decision (whether at least one factor was accepted into the library): {{ feedback.decision }}
+  =========================================================
+  {% endfor %}
+
+last_hypothesis_and_feedback: |-
+  {% import "scenarios.crypto.prompts:crypto_eval_macros" as em %}
+  ## Hypothesis
+  {{ experiment.hypothesis }}
+  ## Specific task:
+  {% for task in experiment.sub_tasks %}
+  {% if task is not none and task.get_task_brief_information is defined %}
+  {{ task.get_task_brief_information() }}
+  {% endif %}
+  {% endfor %}
+  ## Evaluation and Feedback:
+  {{ em.eval_block(experiment.crypto_eval if experiment.crypto_eval is defined else none) }}
+  Evaluation summary log (train and valid only):
+  {{ experiment.stdout if experiment.stdout is defined else "" }}
+  Observation: {{ feedback.observations }}
+  Evaluation: {{ feedback.hypothesis_evaluation }}
+  Decision (whether at least one factor was accepted into the library): {{ feedback.decision }}
+  New Hypothesis (given in the feedback stage, just for reference, and can be accepted or rejected in the next round): {{ feedback.new_hypothesis }}
+  Reasoning (justification for the new hypothesis): {{ feedback.reason }}
+
+sota_library_summary: |-
+  {% import "scenarios.crypto.prompts:crypto_eval_macros" as em %}
+  {% if library %}
+  Accepted factor library (SOTA, {{ library | length }} factor(s)). These factors are already part of the composite in every round; do NOT re-implement them or propose near-duplicates (gate R3 rejects |corr| >= gate_max_corr with any of them). Metrics are on the valid segment at the primary horizon {{ primary_horizon_key }}.
+  | name | ic_mean | ic_ir | ic_tstat | rank_autocorr_1 |
+  |------|---------|-------|----------|-----------------|
+  {% for row in library -%}
+  | {{ row.get("name") }} | {{ em.num(row.get("ic_mean")) }} | {{ em.num(row.get("ic_ir")) }} | {{ em.num(row.get("ic_tstat")) }} | {{ em.num(row.get("rank_autocorr_1")) }} |
+  {% endfor %}
+  {% if composite %}
+  Current library composite (valid, {{ primary_horizon_key }}): {{ em.metrics_line(composite) }}
+  {% endif %}
+  {% else %}
+  The accepted factor library is empty so far: the composite baseline is empty and gate R3/R4 pass automatically. A factor only needs to pass R1 (significance and sign consistency between train and valid) and R2 (coverage) to be accepted.
+  {% endif %}
+
+factor_hypothesis_output_format: |-
+  The output should follow JSON format. The schema is as follows:
+  {
+  "hypothesis": "The new hypothesis generated based on the information provided. Limit in two or three sentences.",
+  "reason": "The reason why you generate this hypothesis. It should be comprehensive and logical. It should cover the other keys below and extend them. Limit in two or three sentences.",
+  }
+
+factor_hypothesis_specification: |-
+  1. **1-3 factors per generation:**
+    - Each generation produces 1 to 3 factors that test ONE clear idea about the 5-15 minute cross-section of crypto instruments.
+    - Make full use of all columns ($open $high $low $close $volume $amount $trade_count $taker_buy_volume $taker_buy_amount), not only $close.
+  2. **Simple microstructure factors first:**
+    - Start with simple, cheap, easily verified factors: short-horizon reversal and momentum (1-48 bars), taker-buy imbalance ($taker_buy_volume / $volume, $taker_buy_amount / $amount), volume or amount shocks versus a rolling mean, realized volatility over a window of bars, range / ATR-normalised moves, returns relative to BTCUSDT, average trade size ($amount / $trade_count) and UTC-hour seasonality effects.
+    - Concisely explain why each factor should rank forward returns and whether you expect a positive or negative sign.
+  3. **Gradual complexity increase:**
+    - Only after simple factors are tested, introduce interactions (e.g. imbalance conditioned on volatility regime, momentum conditioned on volume shock) and regime-conditioned factors.
+    - Combine ideas only after the single ideas have been evaluated.
+  4. **Hard constraints of the evaluation:**
+    - Use only past bars: the value at bar t may depend on rows with datetime <= t only. No centered windows, no negative shifts, no full-sample statistics (a z-score over the whole history, a rank over all dates), no future information of any kind. Look-ahead factors are detected by re-running the code on a truncated panel and rejected (gate R0).
+    - Prefer low turnover: factors with a high rank_autocorr_1 (slowly changing rankings) survive the fee model; noisy bar-to-bar signals do not. Smoothing (EWM, rolling means) over a few bars is encouraged.
+    - Factors must be significant on the valid segment (Newey-West |ic_tstat| >= gate_min_tstat, consistent sign with train, and the within-instrument time-varying part must be significant too: a static per-instrument ranking does not pass), cover at least half of the universe and have |correlation| < gate_max_corr with every accepted factor.
+  5. **New directions and optimizations:**
+    - If several consecutive rounds fail the gate, switch to a genuinely different data column or mechanism instead of tuning window lengths.
+    - If optimizing an accepted direction, change the mechanism (normalisation, conditioning) rather than only the window.
+  6. Note
+    - Accepted factors are already in the library and are used by the composite every round; do not re-implement them.
+    - No matter how many factors you plan to generate, only reply with one set of hypothesis and reason. The hypothesis can include the proposal of multiple factors at the same time.
+
+factor_experiment_output_format: |-
+  The output should follow JSON format. The schema is as follows:
+  {
+      "factor name 1": {
+          "description": "description of factor 1, start with its type, e.g. [Reversal Factor]",
+          "formulation": "latex formulation of factor 1",
+          "variables": {
+              "variable or function name 1": "description of variable or function 1",
+              "variable or function name 2": "description of variable or function 2"
+          }
+      },
+      "factor name 2": {
+          "description": "description of factor 2, start with its type, e.g. [Order Flow Imbalance Factor]",
+          "formulation": "latex formulation of factor 2",
+          "variables": {
+              "variable or function name 1": "description of variable or function 1",
+              "variable or function name 2": "description of variable or function 2"
+          }
+      }
+      # Don't add ellipsis (...) or any filler text that might cause JSON parsing errors here!
+  }
+  Factor names must be valid python identifiers (letters, digits, underscores; no spaces), must not repeat a name already in the accepted library, and all window lengths must be stated in bars.
+
+factor_feedback_generation:
+  system: |-
+    You are a professional crypto microstructure research assistant in a data-driven R&D loop.
+    The task is described in the following scenario:
+
+    {{ scenario }}
+
+    You will receive a hypothesis, the factors implemented for it, their RankIC evaluation on the train and valid
+    segments, and the outcome of the deterministic acceptance gate for every factor.
+    Your feedback should specify whether the current result supports or refutes the hypothesis, explain which gate
+    rules failed and why (look-ahead, noise, high turnover, redundancy with the library, low coverage), and suggest
+    improvements or new directions.
+
+    Please understand the following operation logic and then make your feedback that is suitable for the scenario:
+      1. Logic Explanation:
+        a) Factors that passed the gate were added to the accepted factor library; they are used by the rank composite
+           in every later round.
+        b) New experiments generate new factors, which are scored individually and as an addition to the composite.
+        c) The acceptance decision is made by the deterministic gate rules, NOT by you. Do not argue for or against
+           acceptance; explain the numbers and propose what to try next.
+      2. Development Directions:
+        a) New Direction: propose a new factor mechanism or data column for exploration.
+        b) Optimization of Existing Direction: suggest a concrete change (normalisation, smoothing, conditioning,
+           window in bars) that addresses the failed gate rule. Avoid re-implementing accepted factors.
+      3. Final Goal: continuously accumulate low-correlation, low-turnover factors that improve the valid composite.
+
+    Respond in JSON format. Example JSON structure for Result Analysis:
+    {
+      "Observations": "Your overall observations here (exact numbers, train vs valid consistency, turnover, coverage)",
+      "Feedback for Hypothesis": "Observations related to the hypothesis: supported, refuted or inconclusive and why",
+      "New Hypothesis": "Your new hypothesis here (two or three sentences, concrete windows in bars and columns)",
+      "Reasoning": "Reasoning for the new hypothesis"
+    }
+  user: |-
+    {% import "scenarios.crypto.prompts:crypto_eval_macros" as em %}
+    Target hypothesis:
+    {{ hypothesis_text }}
+    Tasks and Factors:
+    {% for task in task_details %}
+      - {{ task.factor_name }}: {{ task.factor_description }}
+        - Factor Formulation: {{ task.factor_formulation }}
+        - Variables: {{ task.variables }}
+        - Factor Implementation: {{ task.factor_implementation }}
+        {% if task.factor_implementation == "False" %}
+        **Note: This factor was not implemented in the current experiment. Only the hypothesis for implemented factors can be verified.**
+        {% endif %}
+    {% endfor %}
+    Gate outcome per factor (deterministic, final):
+    {{ gate_summary }}
+
+    {{ em.eval_block(crypto_eval) }}
+
+    {% if summary_text %}
+    Evaluation summary log:
+    {{ summary_text }}
+    {% endif %}
+
+    Analyze the results in the context of their ability to:
+    1. Support or refute the hypothesis.
+    2. Improve the library composite on the valid segment compared with the composite before this experiment.
+    3. Suggest the next factor idea that is most likely to pass the gate rules.
+
+    Note: only factors with 'Factor Implementation' as True are implemented and tested in this experiment. If 'Factor Implementation' is False, the hypothesis for that factor cannot be verified in this run.

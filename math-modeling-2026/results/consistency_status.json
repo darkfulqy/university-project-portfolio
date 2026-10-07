@@ -1,0 +1,6 @@
+{
+  "all_values_match": false,
+  "compared_values": 225,
+  "matching_values": 126,
+  "note": "Numerical results are compared with the reference table dataset; per-value differences are recorded in consistency_check.csv."
+}

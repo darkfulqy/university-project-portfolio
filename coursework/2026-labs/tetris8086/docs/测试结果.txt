@@ -1,0 +1,30 @@
+test_all_28_shapes_have_four_unique_connected_cells (test_game.GameTests.test_all_28_shapes_have_four_unique_connected_cells) ... ok
+test_clear_one_to_four_lines_and_compact_board (test_game.GameTests.test_clear_one_to_four_lines_and_compact_board) ... ok
+test_every_rotation_at_all_four_boundaries (test_game.GameTests.test_every_rotation_at_all_four_boundaries) ... ok
+test_ghost_is_lowest_legal_position_without_mutation (test_game.GameTests.test_ghost_is_lowest_legal_position_without_mutation) ... ok
+test_hard_drop_clears_four_rows_and_combines_scoring (test_game.GameTests.test_hard_drop_clears_four_rows_and_combines_scoring) ... ok
+test_hard_drop_locks_four_cells_and_spawns_preview (test_game.GameTests.test_hard_drop_locks_four_cells_and_spawns_preview) ... ok
+test_horizontal_movement_stops_at_both_walls (test_game.GameTests.test_horizontal_movement_stops_at_both_walls) ... ok
+test_level_transition_uses_preclear_multiplier (test_game.GameTests.test_level_transition_uses_preclear_multiplier) ... ok
+test_new_game_and_restart_reset_state (test_game.GameTests.test_new_game_and_restart_reset_state) ... ok
+test_occupied_cell_collision_and_register_preservation (test_game.GameTests.test_occupied_cell_collision_and_register_preservation) ... ok
+test_randomized_gameplay_is_deterministic_and_stays_in_bounds (test_game.GameTests.test_randomized_gameplay_is_deterministic_and_stays_in_bounds) ... ok
+test_rotation_cannot_pass_through_occupied_cells (test_game.GameTests.test_rotation_cannot_pass_through_occupied_cells) ... ok
+test_rotation_uses_two_cell_wall_kick (test_game.GameTests.test_rotation_uses_two_cell_wall_kick) ... ok
+test_score_lines_and_speed_saturate (test_game.GameTests.test_score_lines_and_speed_saturate) ... ok
+test_soft_drop_bonus_and_gravity (test_game.GameTests.test_soft_drop_bonus_and_gravity) ... ok
+test_spawn_collision_sets_game_over (test_game.GameTests.test_spawn_collision_sets_game_over) ... ok
+test_arrows_wasd_and_hard_drop_reach_core (test_main.MainIntegrationTests.test_arrows_wasd_and_hard_drop_reach_core) ... ok
+test_boot_title_gates_keys_and_gravity_until_enter (test_main.MainIntegrationTests.test_boot_title_gates_keys_and_gravity_until_enter) ... ok
+test_escape_restores_saved_display_state_and_exits_dos (test_main.MainIntegrationTests.test_escape_restores_saved_display_state_and_exits_dos) ... ok
+test_frame_has_scores_board_active_ghost_and_next_preview (test_main.MainIntegrationTests.test_frame_has_scores_board_active_ghost_and_next_preview) ... ok
+test_game_over_gates_movement_then_enter_restarts (test_main.MainIntegrationTests.test_game_over_gates_movement_then_enter_restarts) ... ok
+test_gravity_handles_low_word_rollover_and_midnight (test_main.MainIntegrationTests.test_gravity_handles_low_word_rollover_and_midnight) ... ok
+test_key_traffic_does_not_starve_gravity (test_main.MainIntegrationTests.test_key_traffic_does_not_starve_gravity) ... ok
+test_pause_blocks_input_and_time_and_resume_resets_clock (test_main.MainIntegrationTests.test_pause_blocks_input_and_time_and_resume_resets_clock) ... ok
+test_restart_from_pause_resets_board_score_and_modes (test_main.MainIntegrationTests.test_restart_from_pause_resets_board_score_and_modes) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.937s
+
+OK

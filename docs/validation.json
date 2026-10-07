@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-07",
+  "base_commit": "8b04507",
+  "original_file_count": 319,
+  "missing_original_files": [],
+  "modified_original_files": [
+    {
+      "old_path": ".gitignore",
+      "path": ".gitignore"
+    },
+    {
+      "old_path": "README.md",
+      "path": "README.md"
+    },
+    {
+      "old_path": "grid-polynomial-fitting/README.md",
+      "path": "coursework/grid-polynomial-fitting/README.md"
+    },
+    {
+      "old_path": "maijishan-platform/README.md",
+      "path": "maijishan-platform/README.md"
+    }
+  ],
+  "python_ast_files": 316,
+  "json_files": 34,
+  "markdown_files": 50,
+  "relative_links_checked": 205,
+  "errors": [],
+  "research_or_model_execution": false,
+  "status": "passed",
+  "sensitive_scan": {
+    "confirmed_findings": 0,
+    "reviewed_false_positives": 8,
+    "explanation": "All email-pattern hits were Python matrix multiplication followed by NumPy attributes, manually inspected."
+  },
+  "runtime_checks": [
+    {
+      "project": "market-alerts",
+      "command": "python3 -m unittest discover -s tests -p test_indicators.py -v",
+      "tests": 20,
+      "passed": 20,
+      "network_calls": false
+    }
+  ],
+  "not_executed": [
+    "research training",
+    "robot evaluation",
+    "math solver",
+    "procurement crawl",
+    "full app deployments",
+    "all course programs"
+  ],
+  "screenshot_review": "8086 screenshot visually reviewed; gameplay pixels only; no desktop or personal identifiers.",
+  "git_diff_check": {
+    "exit_code": 2,
+    "findings": "Only Markdown hard breaks, original trailing whitespace/blank EOF, and original CSV CRLF; source bytes retained for provenance."
+  },
+  "published_file_count": 560
+}

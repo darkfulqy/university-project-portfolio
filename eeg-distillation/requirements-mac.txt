@@ -1,0 +1,19 @@
+# Mac (Apple Silicon, MPS) environment for the 数据蒸馏 reproduction project
+torch>=2.4
+numpy
+scipy
+pandas
+scikit-learn
+mne>=1.6
+moabb>=1.1
+matplotlib
+tqdm
+h5py
+einops
+loguru
+pyod
+torchsummary
+joblib
+pyarrow
+fire
+statsmodels

@@ -1,0 +1,30 @@
+[
+  {
+    "problem": 1,
+    "event_h": null,
+    "N": 100,
+    "dt_s": 1,
+    "water_balance": -0.0044810071203233
+  },
+  {
+    "problem": 2,
+    "event_h": null,
+    "N": 100,
+    "dt_s": 0.5,
+    "water_balance": -0.004750539730286162
+  },
+  {
+    "problem": 3,
+    "event_h": 57.57980775607042,
+    "N": 100,
+    "dt_s": 0.5,
+    "water_balance": -0.08650854582788073
+  },
+  {
+    "problem": 4,
+    "event_h": 51.11495100433299,
+    "N": 100,
+    "dt_s": 1,
+    "water_balance": -1.0275005247511256e-14
+  }
+]

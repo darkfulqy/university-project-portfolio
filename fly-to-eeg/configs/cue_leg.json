@@ -1,0 +1,43 @@
+{
+  "dataset": "male-cns:v1.0",
+  "graph_directory": "data/processed/male_cns_v1_0_cue_leg",
+  "output_directory": "results/cue_leg/v1_0_pilot",
+  "task": "symbolic_cue_to_tethered_foreleg_lift",
+  "cue_names": ["A", "B", "blank"],
+  "assigned_target_legs": ["LF", "RF", null],
+  "cue_encoding": "three discrete cue identities; no retinal or optic-lobe simulation",
+  "learning_locus": "added_cue_to_neural_input_policy; recurrent_connectome_frozen",
+  "calibration_seed": 0,
+  "training_ensemble_seeds": [11, 12, 13],
+  "test_ensemble_seeds": [101, 102, 103],
+  "policy_seeds": [31, 32, 33, 34, 35],
+  "candidate_inputs_per_side": 5,
+  "input_magnitudes_per_size": [35.0, 100.0],
+  "neural": {
+    "solver": "rk4",
+    "initial_dt_s": 0.0005,
+    "minimum_dt_s": 0.0000625,
+    "output_dt_s": 0.005,
+    "duration_s": 0.9,
+    "onset_s": 0.1,
+    "offset_s": 0.4,
+    "synaptic_scaling_b": 0.03,
+    "convergence_relative_rms_tolerance": 0.03
+  },
+  "readout_rate_scale_au": 20.0,
+  "body": {
+    "constraint": "tethered",
+    "timestep_s": 0.0001,
+    "mapping": "fixed_symmetric_motor_population_sum_to_femur_actuator"
+  },
+  "behavior_criteria": {
+    "target_lift_mm": 0.35,
+    "non_target_max_displacement_mm": 0.15,
+    "return_tolerance_mm": 0.15,
+    "blank_max_displacement_mm": 0.15,
+    "response_window_after_onset_s": [0.02, 0.5]
+  },
+  "training": {"episodes": 2400, "learning_rate": 0.12},
+  "nuisance": {"input_gain_range": [0.9, 1.1], "onset_jitter_s": [-0.01, 0.0, 0.01]},
+  "scope": "engineering proof of concept; no claim of native biological learning or topology superiority"
+}

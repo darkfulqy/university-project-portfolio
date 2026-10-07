@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "dataset": "male-cns:v1.0",
+  "scope": "one_way_selected_three_cell_membrane_replay_from_frozen_whole_CNS",
+  "signal_kind": "selected_three_cell_model_extracellular_contribution",
+  "cells": [
+    {
+      "body_id": 17871,
+      "cell_type": "Mi1",
+      "instance": "Mi1_R",
+      "swc": "data/raw/male_cns/v1.0/morphology_examples/17871.swc",
+      "contacts": "data/processed/fly_observer_population/contacts_17871.feather"
+    },
+    {
+      "body_id": 18251,
+      "cell_type": "L1",
+      "instance": "L1_R",
+      "swc": "data/raw/male_cns/v1.0/morphology_examples/18251.swc",
+      "contacts": "data/processed/fly_observer_population/contacts_18251.feather"
+    },
+    {
+      "body_id": 17529,
+      "cell_type": "L2",
+      "instance": "L2_R",
+      "swc": "data/raw/male_cns/v1.0/morphology_examples/17529.swc",
+      "contacts": "data/processed/fly_observer_population/contacts_17529.feather"
+    }
+  ],
+  "cell_selection": {
+    "rule": "existing local native SWCs for right-side Mi1, L1 and L2",
+    "same_column_established": false,
+    "photoreceptor_membrane_models": false,
+    "coverage_claim": "three selected cells only; not a population census"
+  },
+  "raw": {
+    "partners": "data/raw/male_cns/v1.0/syn-partners-male-cns-v1.0-minconf-0.5.feather",
+    "annotations": "data/raw/male_cns/v1.0/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+    "neurotransmitters": "data/raw/male_cns/v1.0/body-neurotransmitters-male-cns-v1.0.feather"
+  },
+  "graph": "data/processed/male_cns_v1_0_visual_full",
+  "visual_config": "configs/visual_full_cns.json",
+  "contacts_output": "data/processed/fly_observer_population",
+  "contacts_manifest": "data/processed/fly_observer_population/contacts_manifest.json",
+  "parent_source": {
+    "trial": "results/fly_observer/v0/source/trial.npz",
+    "metadata": "results/fly_observer/v0/source/metadata.json",
+    "parameters": "results/fly_observer/v0/source/parameters.npz"
+  },
+  "source_output": "results/fly_observer_population/v0/source",
+  "run_output_root": "results/fly_observer_population/v0/runs",
+  "expected_protocol": {
+    "duration_s": 2.4,
+    "source_dt_s": 0.001,
+    "onset_s": 0.2,
+    "offset_s": 2.2,
+    "frequency_hz": 10,
+    "duty_cycle": 0.5,
+    "drive_amplitude_au": 0.8,
+    "kind": "achromatic_R1_R6_terminal_square_wave"
+  },
+  "source_endpoint_abs_tolerance_au": 1e-12,
+  "regression": {
+    "body_id": 17871,
+    "v1_contacts": "data/processed/fly_observer_mi1/contacts.feather",
+    "v1_base_trial": "results/fly_observer/v1/base/trial.npz",
+    "v1_base_metadata": "results/fly_observer/v1/base/metadata.json",
+    "relative_tolerance": 1e-12
+  },
+  "cable_parameters": {
+    "cm_uF_cm2": 1.0,
+    "ra_ohm_cm": 100.07105,
+    "leak_S_cm2": 0.00001,
+    "leak_reversal_mV": -65.0,
+    "exc_reversal_mV": 0.0,
+    "inh_reversal_mV": -70.0,
+    "conductance_uS_per_contact_per_au": 0.00001,
+    "radius_scale": 1.0,
+    "max_segment_um": 2.0,
+    "sigma_S_m": 0.3
+  },
+  "passive_parameter_source": {
+    "paper": "https://doi.org/10.1038/s41593-017-0046-4",
+    "modeldb_commit": "bf8ba7867feeeddd944747021578c90f47e32796",
+    "transfer": "T4 passive parameters transferred to Mi1, L1 and L2 as an uncalibrated modeling assumption",
+    "cm_status": "fixed assumption in original T4 paper, not measured capacitance of these cell types",
+    "archive_license": "CC-BY-NC-4.0; original code not executed or copied"
+  },
+  "mapping": {
+    "type": "continuous_nonnegative_activity_to_ohmic_membrane_conductance",
+    "formula": "g_contact_uS(t) = 1e-5 * x_pre_au(t)",
+    "mapping_gain_status": "assumed_not_fitted_to_LFP_or_ephys; identical across cell types",
+    "contacts": "each cell's own contacts retained by frozen graph; unknown output sign disabled but kept in tables",
+    "location": "nearest_centerline_segment_to_original_postsynaptic_coordinate",
+    "interpolation": "left_hold_1_ms",
+    "reversal_mechanisms": "generic ohmic excitatory 0 mV and inhibitory -70 mV; histamine treated as inhibitory by frozen graph sign; no receptor kinetic calibration",
+    "spike_conversion": false,
+    "feedback_to_CNS": false,
+    "field_feedback_to_membranes": false
+  },
+  "observer": {
+    "forward_model": "lfpykit_line_sources_homogeneous_infinite_isotropic_volume_conductor",
+    "sigma_status": "generic_0.3_S_per_m_assumption_not_measured_fly_tissue",
+    "coordinates": "native_unmirrored_Male_CNS_EM_micrometers",
+    "source_geometry": "coarse_SWC_8_nm_scaled_to_um; radii_in_same_units_assumed",
+    "electrodes_source": "results/fly_observer/v1/base/trial.npz",
+    "electrodes_source_sha256": "d1ab0e906e3fbc56dc3e54d308d6b6de532dae22f5739fdd682c6b123a144151",
+    "electrodes_key": "electrodes_um",
+    "probe": "exact_saved_v1_16_point_contacts_shared_by_all_cells; not recentered per cell",
+    "probe_geometry_status": "synthetic_not_registered_to_reference_paper_or_fly_boundary",
+    "minimum_centerline_clearance_um": 5.0,
+    "reference_channel_zero_based": 15,
+    "reference": "zero-based index 15 (the 16th contact); subtracted after signed summation",
+    "baseline": "per-channel mean of samples with time_s < stimulus onset, after reference",
+    "output_units": "model_derived_microvolts",
+    "noise": null,
+    "finite_electrode_surface": false
+  },
+  "integration": {
+    "dt_ms": 0.025,
+    "warmup_ms": 2000.0,
+    "output_sampling_rate_hz": 1000,
+    "output_note": "point samples; no claim of antialias-filtered empirical acquisition"
+  },
+  "variants": ["base", "blank", "half_dt", "half_segment", "radius_half", "radius_double"],
+  "geometry_preflight_variants": ["base", "half_segment", "radius_half", "radius_double"],
+  "validation": {
+    "current_balance_abs_tolerance_nA": 1e-9,
+    "blank_max_delta_uV_tolerance": 1e-8,
+    "time_step_relative_max_tolerance": 0.01,
+    "space_step_relative_max_tolerance": 0.02,
+    "relative_error_denominator_floor_uV": 1e-8,
+    "relative_error_floor_rationale": "equals the blank tolerance: a reference peak below it is indistinguishable from the blank gate; floor use and absolute errors are reported",
+    "summation_relative_tolerance": 1e-12,
+    "spectral_identity_relative_tolerance": 1e-9,
+    "conductivity_sensitivity_S_m": [0.15, 0.6]
+  },
+  "descriptors": {
+    "cancellation_denominator_floor_uV": 1e-12,
+    "window": "stimulus interval [onset_s, offset_s)",
+    "report_frequencies_hz": [10, 20, 30],
+    "interpretation": "model descriptors only; a stimulus-locked component is imposed by the driven source protocol and is not empirical validation"
+  },
+  "software_manifests": [
+    "references/fly_observer_software_manifest.json",
+    "references/population_field_software_manifest.json"
+  ],
+  "hybridlfpy": {
+    "repository": "INM-6/hybridLFPy",
+    "commit": "479c2c4825abbcf047fbdb707c9234b32dd19c75",
+    "status": "method reference; aggregation hook flyobserver.population.aggregate_contributions(aggregator=...); PostProcess not executed here"
+  },
+  "source_model_seed": 211,
+  "split_group": "male_cns_v1_0_visual_source_211",
+  "trajectory": null,
+  "movement_label": null,
+  "analysis_role": "engineering_population_observer_pilot_no_empirical_fit",
+  "whole_CNS_LFP": false,
+  "empirical_validation": false
+}
