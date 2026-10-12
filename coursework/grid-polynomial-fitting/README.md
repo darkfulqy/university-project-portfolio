@@ -14,4 +14,4 @@ python draw_lines.py
 
 ## 分类说明
 
-本目录归为学校课程作业。课外的 YOLOv8 散斑纹样视觉项目及本人数据、标注工作，另见 [YOLOv8 项目](../../yolo-speckle-detection/)。这里的 C++ 拟合代码不代表该视觉项目的完整实现。
+本目录归为学校课程作业。它对应散斑形变测量项目中由 YOLOv8-OBB 角点拟合位移网格的环节，项目整体见[基于 YOLO 的数字散斑相关法物体形变测量](../../yolo-speckle-detection/)。

@@ -6,9 +6,9 @@
 
 ## 2024.09—2025 夏 大一：数据处理与科研接触
 
-参与 YOLOv8 散斑纹样检测项目中的数据集与标注工作；2025 年 5 月加入文物保护实验室。报告同时记录两项奖项。
+担任大创项目「基于 YOLO 的数字散斑相关法物体形变测量」技术负责人；2025 年 5 月加入文物保护实验室。报告同时记录两项奖项。
 
-- [YOLOv8 形变材料散斑纹样目标检测大创项目](experience-catalog.md#yolo-speckle)
+- [基于 YOLO 的数字散斑相关法物体形变测量（大创项目）](experience-catalog.md#yolo-speckle)
 - [文物保护实验室科研参与](experience-catalog.md#heritage-lab)
 - [学业优秀奖学金一等奖](experience-catalog.md#academic-scholarship)
 - [重点实验室本科生科研考核三等奖](experience-catalog.md#lab-research-award)
