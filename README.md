@@ -2,20 +2,20 @@
 
 李卿阳 · 上海大学计算机科学与技术本科 · 2024 年入学，预计 2028 年毕业
 
-从计算机视觉数据准备与文保资料数字化，到 RAG 和 Agent 系统开发，再到 EEG 适配、泛化与数据高效学习研究。这里汇集课外项目、科研探索、竞赛和个人工程，供申请材料审阅；学校课程作业集中在独立栏目。
+从计算机视觉数据准备与文保资料数字化，到 RAG 和 Agent 系统开发，再到 EEG 适配、泛化与数据高效学习研究。这里汇集项目经历、科研探索、竞赛和个人工程，供申请材料审阅；学校课程作业集中在独立栏目。
 
 [33 条完整经历](docs/experience-catalog.md) · [成长时间线](docs/timeline.md) · [Claude 报告逐项对应](docs/report-crosswalk.md)
 
-## 课外项目
+## 项目经历
 
 | 项目 | 工作与内容 | 材料入口 |
 | --- | --- | --- |
-| [麦积山数字人文平台](maijishan-platform/) | 课外团队项目；参与组织协调、资料治理、检索与网站开发 | FastAPI、React、检索及管理源码 |
-| [YOLOv8 散斑纹样检测](yolo-speckle-detection/) | 课外计算机视觉项目成员；数据集构建、图像标注、训练前整理和质量检查 | 项目与个人贡献说明，独立源码待补 |
-| [司法文书 RAG 项目](legal-rag-prototype/) | 新致杯相关课外团队项目；知识库、检索与文书生成原型 | 历史源码，角色与奖项保留核验状态 |
+| [麦积山数字人文平台](maijishan-platform/) | 本科生大作业项目（约 30 人团队）；核心成员、6 人小组组长，负责组织协调、资料治理、混合检索与网站开发 | FastAPI、React、检索及管理源码 |
+| [基于 YOLO 的数字散斑相关法物体形变测量](yolo-speckle-detection/) | 大学生创新创业训练项目技术负责人；散斑数据集与标注、YOLOv8-OBB 识别形变/位移/旋转、角点拟合位移网格、Ncorr 计算形变参数 | 项目与个人工作说明；拟合计算代码见课程作业栏目 |
+| [司法文书 RAG 项目](legal-rag-prototype/) | 新致杯 AI 创新大赛 3 人团队组长；RAG 后端、知识库与检索架构，进入决赛并获优胜奖 | 历史原型源码 |
 | [采购数据治理与智采通](procurement-data-governance/) | 由采购课程工程延伸的团队项目与校内创新竞赛；数据治理及系统组织 | 公告采集、原测试与知识图谱规范 |
 
-YOLOv8 的计算机视觉经历单独展示。C++ 多项式拟合与形变测量归入[计算思维课程作业](coursework/grid-polynomial-fitting/)，其中涉及 YOLOv8-OBB 角点输入背景，不能代表课外视觉项目的全部工作。
+散斑形变测量中的最小二乘拟合环节另以 C++ 实现，并作为[计算思维课程作业](coursework/grid-polynomial-fitting/)提交。
 
 ## 科研探索
 
@@ -39,7 +39,7 @@ YOLOv8 的计算机视觉经历单独展示。C++ 多项式拟合与形变测量
 | [RD-Agent 加密因子扩展](rd-agent-crypto-extension/) | 基于 Microsoft RD-Agent 的个人场景、评价和循环扩展 |
 | [AI 教育课程设计](ai-education/) | 15 课方案与另一阶段的 16 课时教案源文件 |
 
-报告中的[浏览器 Agent](docs/experience-catalog.md#browser-agent)及[独立文件 RAG](docs/experience-catalog.md#file-rag)也保留了经历说明；尚未定位到与其明确对应的独立工程时，不以其他项目代码代替。
+报告中的[浏览器 Agent](docs/experience-catalog.md#browser-agent)也保留了经历说明；尚未定位到与其明确对应的独立工程时，不以其他项目代码代替。[文件 RAG 服务](docs/experience-catalog.md#file-rag)是长亮科技实习期间为公司开发的工具，归入实习经历。
 
 ## 实习与社团
 
